@@ -7,7 +7,9 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "init-admin": "node scripts/initializeAdmin.js",
-    "init-institutions": "node scripts/initializeInstitutions.js"
+    "init-institutions": "node scripts/initializeInstitutions.js",
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd backend && node server.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
