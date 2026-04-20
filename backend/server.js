@@ -12,22 +12,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// ✅ ADD THIS ROOT ROUTE HERE
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Hospital Management API is running',
-    status: 'active',
-    timestamp: new Date(),
-    endpoints: {
-      auth: '/api/auth',
-      admin: '/api/admin', 
-      staff: '/api/staff',
-      patient: '/api/patient',
-      health: '/api/health'
-    }
-  });
-});
-
 // Database Connection
 const connectDB = async () => {
   try {
