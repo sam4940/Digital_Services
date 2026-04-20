@@ -51,8 +51,6 @@ app.get('/', (req, res) => {
   res.send('API is running');
 });
 
-// At the bottom of server.js, add this:
-const path = require('path');
 
 // Serve static files from frontend build
 if (process.env.NODE_ENV === 'production') {
