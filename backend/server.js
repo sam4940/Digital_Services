@@ -1,39 +1,31 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path');
-
-// Load .env from backend folder
-require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+require('dotenv').config();
 
 const app = express();
-
-// Debug: Check if MONGODB_URI is loaded
-console.log('Environment Variables Loaded:');
-console.log('MONGODB_URI:', process.env.MONGODB_URI ? '✓ Loaded' : '✗ NOT LOADED');
-console.log('PORT:', process.env.PORT);
 
 // Middleware
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  credentials: true
 }));
 app.use(express.json());
 
 // Database Connection
 const connectDB = async () => {
   try {
-    if (!process.env.MONGODB_URI) {
-      throw new Error('MONGODB_URI is not defined in environment variables');
-    }
+    const mongoURI = process.env.MONGODB_URI;
     
-    await mongoose.connect(process.env.MONGODB_URI, {
+    if (!mongoURI) {
+      throw new Error('MONGODB_URI environment variable is not set');
+    }
+
+    await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log('✓ MongoDB Connected');
+    console.log('✓ MongoDB Connected Successfully');
   } catch (error) {
     console.error('✗ MongoDB Connection Error:', error.message);
     process.exit(1);
