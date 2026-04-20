@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -45,17 +46,25 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'Server running', timestamp: new Date() });
 });
 
+// Root route (IMPORTANT FIX)
+app.get('/', (req, res) => {
+  res.send('API is running');
+});
+
 // At the bottom of server.js, add this:
 const path = require('path');
 
 // Serve static files from frontend build
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'frontend/build')));
-  
+  const frontendPath = path.join(__dirname, '../frontend/build');
+
+  app.use(express.static(frontendPath));
+
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
+    res.sendFile(path.join(frontendPath, 'index.html'));
   });
 }
+// start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✓ Server running on port ${PORT}`);
