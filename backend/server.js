@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -12,21 +13,8 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// ✅ FIX: Add root route here (THIS IS WHAT YOU'RE MISSING)
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Pharmacy Services API is running',
-    status: 'active',
-    timestamp: new Date(),
-    endpoints: {
-      health: '/api/health',
-      auth: '/api/auth',
-      admin: '/api/admin',
-      staff: '/api/staff',
-      patient: '/api/patient'
-    }
-  });
-});
+// Serve React build folder
+app.use(express.static(path.join(__dirname, 'frontend', 'build')));
 
 // Database Connection
 const connectDB = async () => {
@@ -50,15 +38,19 @@ const connectDB = async () => {
 
 connectDB();
 
-// Routes
+// API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/staff', require('./routes/staff'));
 app.use('/api/patient', require('./routes/patient'));
 
-// Health Check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server running', timestamp: new Date() });
+});
+
+//  For React Router - serve index.html for all non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
 });
 
 const PORT = process.env.PORT || 5000;
