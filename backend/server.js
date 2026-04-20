@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -12,9 +11,6 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-
-// Serve React build folder
-app.use(express.static(path.join(__dirname, 'frontend', 'build')));
 
 // Database Connection
 const connectDB = async () => {
@@ -38,19 +34,15 @@ const connectDB = async () => {
 
 connectDB();
 
-// API Routes
+// Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/staff', require('./routes/staff'));
 app.use('/api/patient', require('./routes/patient'));
 
+// Health Check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server running', timestamp: new Date() });
-});
-
-//  For React Router - serve index.html for all non-API routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
 });
 
 const PORT = process.env.PORT || 5000;
