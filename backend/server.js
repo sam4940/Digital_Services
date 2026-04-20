@@ -45,6 +45,17 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'Server running', timestamp: new Date() });
 });
 
+// At the bottom of server.js, add this:
+const path = require('path');
+
+// Serve static files from frontend build
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'frontend/build')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
+  });
+}
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✓ Server running on port ${PORT}`);
