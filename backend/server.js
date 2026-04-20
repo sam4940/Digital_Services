@@ -46,22 +46,19 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'Server running', timestamp: new Date() });
 });
 
-// Root route (IMPORTANT FIX)
-app.get('/', (req, res) => {
-  res.send('API is running');
-});
-
-
-// Serve static files from frontend build
 if (process.env.NODE_ENV === 'production') {
   const frontendPath = path.join(__dirname, '../frontend/build');
-
   app.use(express.static(frontendPath));
-
-  app.get('/api', (req, res) => {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
+ 
+// Root route (IMPORTANT FIX)
+app.get('/api', (req, res) => {
   res.send('API is running');
 });
-}
+
 // start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
