@@ -12,6 +12,22 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// ✅ FIX: Add root route here (THIS IS WHAT YOU'RE MISSING)
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Pharmacy Services API is running',
+    status: 'active',
+    timestamp: new Date(),
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      admin: '/api/admin',
+      staff: '/api/staff',
+      patient: '/api/patient'
+    }
+  });
+});
+
 // Database Connection
 const connectDB = async () => {
   try {
