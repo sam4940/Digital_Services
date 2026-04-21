@@ -7,11 +7,12 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
+app.use(express.json());
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   credentials: true
 }));
-app.use(express.json());
+
 
 // Database Connection
 const connectDB = async () => {
@@ -35,15 +36,16 @@ const connectDB = async () => {
 
 connectDB();
 
-// Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/staff', require('./routes/staff'));
-app.use('/api/patient', require('./routes/patient'));
-
-// Health Check
+// routes
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'Server running', timestamp: new Date() });
+  res.json({
+    status: 'Server running',
+    timestamp: new Date()
+  });
+});
+
+app.get('/api', (req, res) => {
+  res.send('API is running');
 });
 
 if (process.env.NODE_ENV === 'production') {
@@ -54,10 +56,6 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
  
-// Root route (IMPORTANT FIX)
-app.get('/api', (req, res) => {
-  res.send('API is running');
-});
 
 // start server
 const PORT = process.env.PORT || 5000;
