@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
-const fs = require('fs');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -11,7 +10,6 @@ const app = express();
 app.use(cors({
   origin: [
     process.env.CORS_ORIGIN || 'http://localhost:3000',
-    'https://digital-services-5q9t.onrender.com'
   ],
   credentials: true
 }));
