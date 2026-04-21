@@ -8,7 +8,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: 'https://digital-services-5q9t.onrender.com',
   credentials: true
 }));
 app.use(express.json());
