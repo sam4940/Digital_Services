@@ -46,7 +46,7 @@ app.get('/api/health', (req, res) => {
 if (process.env.NODE_ENV === 'production') {
   const frontendPath = path.join(__dirname, '../frontend/build');
   app.use(express.static(path.join(process.cwd(), 'frontend', 'build'));
-  app.get('*', (_req, res) => {
+  app.get('*', (req, res) => {
     res.sendFile(path.join(process.cwd(), 'frontend', 'build', 'index.html'));
   });
 }
