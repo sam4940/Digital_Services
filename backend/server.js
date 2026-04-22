@@ -8,7 +8,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'https://digital-services-5q9t.onrender.com',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   credentials: true
 }));
 app.use(express.json());
@@ -17,7 +17,10 @@ app.use(express.json());
 const connectDB = async () => {
   try {
     const mongoURI = process.env.MONGODB_URI;
-    if (!mongoURI) throw new Error('MONGODB_URI is not set');
+    
+    if (!mongoURI) {
+      throw new Error('MONGODB_URI environment variable is not set');
+    }
 
     await mongoose.connect(mongoURI);
     console.log('✓ MongoDB Connected Successfully');
@@ -40,22 +43,20 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'Server running', timestamp: new Date() });
 });
 
-// Root API route
-app.get('/api', (req, res) => {
-  res.send('API is running');
-});
-
-// Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
   const frontendPath = path.join(__dirname, '../frontend/build');
   app.use(express.static(frontendPath));
-
   app.get('*', (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));
   });
 }
+ 
+// Root route (IMPORTANT FIX)
+app.get('/api', (req, res) => {
+  res.send('API is running');
+});
 
-// Start server
+// start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✓ Server running on port ${PORT}`);
