@@ -1,31 +1,27 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
 
-// Middleware
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'https://digital-services-5q9t.onrender.com',
-  credentials: true
-}));
+//Middleware
+
+app.use(cors());
 app.use(express.json());
 
-// Database Connection
+// MongoDB Connection
+
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI;
-    
-    if (!mongoURI) {
-      throw new Error('MONGODB_URI environment variable is not set');
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI not set');
     }
 
-    await mongoose.connect(mongoURI);
-    console.log('✓ MongoDB Connected Successfully');
-  } catch (error) {
-    console.error('✗ MongoDB Connection Error:', error.message);
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('✓ MongoDB Connected');
+  } catch (err) {
+    console.error('✗ MongoDB Error:', err.message);
     process.exit(1);
   }
 };
@@ -33,31 +29,32 @@ const connectDB = async () => {
 connectDB();
 
 // Routes
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/staff', require('./routes/staff'));
 app.use('/api/patient', require('./routes/patient'));
 
-// Health Check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'Server running', timestamp: new Date() });
+  res.json({ status: 'OK', time: new Date() });
 });
 
+app.get('/api', (req, res) => {
+  res.send('API running');
+});
+
+// Serve frontend (production)
 if (process.env.NODE_ENV === 'production') {
-  const frontendBuildPath = path.join(procrss.cwd(), 'frontend','build');
-  app.use(express.static(frontendBuildPath'));
+  const frontendPath = path.join(__dirname, '../frontend/build');
+  app.use(express.static(frontendPath));
   app.get('*', (req, res) => {
-    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+    res.sendFile(path.join(frontendPath, 'index.html'));
   });
 }
- 
-// Root route (IMPORTANT FIX)
-app.get('/api', (req, res) => {
-  res.send('API is running');
-});
 
-// start server
+// Start Server
+
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`✓ Server running on port ${PORT}`);
 });
