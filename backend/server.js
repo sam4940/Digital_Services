@@ -1,3 +1,5 @@
+// server.js
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -5,7 +7,8 @@ const path = require('path');
 require('dotenv').config();
 
 const HealthcareInstitution = require('./models/HealthcareInstitution');
-const institutions = require('./scripts/institutionsData'); // NEW
+const institutions = require('./scripts/institutionsData');
+const initializeAdmin = require('./scripts/initializeAdmin');
 
 const app = express();
 
@@ -23,8 +26,11 @@ const connectDB = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('✓ MongoDB Connected');
 
-    // SEED DATA AFTER CONNECTION
+    // Seed institutions
     await seedInstitutions();
+
+    // Initialize admin
+    await initializeAdmin();
 
   } catch (err) {
     console.error('✗ MongoDB Error:', err.message);
@@ -32,26 +38,25 @@ const connectDB = async () => {
   }
 };
 
-// SEED FUNCTION (AUTO INSERT)
+// Seed institutions
 const seedInstitutions = async () => {
   try {
     const count = await HealthcareInstitution.countDocuments();
 
     if (count === 0) {
-      console.log('⚡ Seeding institutions...');
-
+      console.log(' Seeding institutions...');
       await HealthcareInstitution.insertMany(institutions);
-
-      console.log(`✓ Inserted ${institutions.length} institutions`);
+      console.log(`Inserted ${institutions.length} institutions`);
     } else {
-      console.log('✓ Institutions already exist');
+      console.log(' Institutions already exist');
     }
 
   } catch (error) {
-    console.error('✗ Seeding error:', error.message);
+    console.error('Seeding error:', error.message);
   }
 };
 
+// Connect DB
 connectDB();
 
 // Routes
@@ -68,7 +73,7 @@ app.get('/api', (req, res) => {
   res.send('API running');
 });
 
-// Serve frontend (ONLY if build exists)
+// Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
   const frontendPath = path.join(__dirname, '../frontend/build');
 
@@ -81,6 +86,7 @@ if (process.env.NODE_ENV === 'production') {
 
 // Start Server
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
   console.log(`✓ Server running on port ${PORT}`);
 });
