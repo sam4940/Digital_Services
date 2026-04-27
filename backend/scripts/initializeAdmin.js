@@ -1,92 +1,39 @@
-// server.js
-
-const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
-const path = require('path');
+const Admin = require('../models/Admin');
 require('dotenv').config();
 
-const HealthcareInstitution = require('./models/HealthcareInstitution');
-const institutions = require('./scripts/institutionsData');
-const initializeAdmin = require('./scripts/initializeAdmin');
-
-const app = express();
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// MongoDB Connection
-const connectDB = async () => {
+const initializeAdmin = async () => {
   try {
-    if (!process.env.MONGODB_URI) {
-      throw new Error('MONGODB_URI not set');
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    // Check if admin already exists
+    const existingAdmin = await Admin.findOne({ email: 'admin@pharmacy-dhofar.gov.om' });
+    
+    if (existingAdmin) {
+      console.log('✓ Admin already exists');
+      process.exit(0);
     }
 
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✓ MongoDB Connected');
+    // Create admin with default password
+    const admin = new Admin({
+      email: 'admin@pharmacy-dhofar.gov.om',
+      password: 'Pharmacy@2026' // Change this to a strong password
+    });
 
-    // Seed institutions
-    await seedInstitutions();
-
-    // Initialize admin
-    await initializeAdmin();
-
-  } catch (err) {
-    console.error('✗ MongoDB Error:', err.message);
+    await admin.save();
+    console.log('✓ Admin created successfully');
+    console.log('Email:', 'admin@pharmacy-dhofar.gov.om');
+    console.log('Password:', 'Pharmacy@2026');
+    console.log('⚠️  IMPORTANT: Change the password on first login!');
+    
+    process.exit(0);
+  } catch (error) {
+    console.error('✗ Error initializing admin:', error);
     process.exit(1);
   }
 };
 
-// Seed institutions
-const seedInstitutions = async () => {
-  try {
-    const count = await HealthcareInstitution.countDocuments();
-
-    if (count === 0) {
-      console.log('Seeding institutions...');
-      await HealthcareInstitution.insertMany(institutions);
-      console.log(`Inserted ${institutions.length} institutions`);
-    } else {
-      console.log('Institutions already exist');
-    }
-
-  } catch (error) {
-    console.error('Seeding error:', error.message);
-  }
-};
-
-// Connect DB
-connectDB();
-
-// Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/staff', require('./routes/staff'));
-app.use('/api/patient', require('./routes/patient'));
-
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', time: new Date() });
-});
-
-app.get('/api', (req, res) => {
-  res.send('API running');
-});
-
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '../frontend/build');
-
-  app.use(express.static(frontendPath));
-
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(frontendPath, 'index.html'));
-  });
-}
-
-// Start Server
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`✓ Server running on port ${PORT}`);
-});
+initializeAdmin();
