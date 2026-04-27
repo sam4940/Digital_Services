@@ -1,39 +1,34 @@
-const mongoose = require('mongoose');
+// scripts/initializeAdmin.js
+
 const Admin = require('../models/Admin');
-require('dotenv').config();
 
 const initializeAdmin = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+    // Check if admin already exists
+    const existingAdmin = await Admin.findOne({
+      email: 'admin@pharmacy-dhofar.gov.om'
     });
 
-    // Check if admin already exists
-    const existingAdmin = await Admin.findOne({ email: 'admin@pharmacy-dhofar.gov.om' });
-    
     if (existingAdmin) {
       console.log('✓ Admin already exists');
-      process.exit(0);
+      return;
     }
 
-    // Create admin with default password
+    // Create admin
     const admin = new Admin({
       email: 'admin@pharmacy-dhofar.gov.om',
-      password: 'Pharmacy@2026' // Change this to a strong password
+      password: 'Pharmacy@2026'
     });
 
     await admin.save();
+
     console.log('✓ Admin created successfully');
-    console.log('Email:', 'admin@pharmacy-dhofar.gov.om');
-    console.log('Password:', 'Pharmacy@2026');
-    console.log('⚠️  IMPORTANT: Change the password on first login!');
-    
-    process.exit(0);
+    console.log('Email: admin@pharmacy-dhofar.gov.om');
+    console.log('Password: Pharmacy@2026');
+
   } catch (error) {
-    console.error('✗ Error initializing admin:', error);
-    process.exit(1);
+    console.error('✗ Error initializing admin:', error.message);
   }
 };
 
-initializeAdmin();
+module.exports = initializeAdmin;
